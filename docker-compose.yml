@@ -1,0 +1,67 @@
+version: "3.9"
+
+# ── mcp-fortiedr: Multi-instance deployment example ──────────────────────────
+#
+# One container per FortiEDR customer/instance.
+# Each container loads its own .env file with independent credentials.
+#
+# Usage:
+#   1. Copy env.example to .env.clienteA and .env.clienteB
+#   2. Fill in the FortiEDR credentials for each customer
+#   3. Run: docker-compose up -d
+#
+# MCP endpoints will be available at:
+#   Cliente A → http://localhost:8002/
+#   Cliente B → http://localhost:8003/
+# Health checks:
+#   Cliente A → http://localhost:8002/health
+#   Cliente B → http://localhost:8003/health
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  mcp-fortiedr-clienteA:
+    image: mcp-fortiedr:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mcp-fortiedr-clienteA
+    env_file: .env.clienteA
+    ports:
+      - "8002:8000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  mcp-fortiedr-clienteB:
+    image: mcp-fortiedr:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mcp-fortiedr-clienteB
+    env_file: .env.clienteB
+    ports:
+      - "8003:8000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
