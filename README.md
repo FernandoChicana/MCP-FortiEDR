@@ -146,11 +146,11 @@ Example configuration (format varies by client):
 {
   "mcpServers": {
     "fortiedr-clienteA": {
-      "url": "http://localhost:8002/",
+      "url": "http://localhost:8002/mcp",
       "transport": "http"
     },
     "fortiedr-clienteB": {
-      "url": "http://localhost:8003/",
+      "url": "http://localhost:8003/mcp",
       "transport": "http"
     }
   }
@@ -166,8 +166,9 @@ Example query:
 
 ```bash
 # List events via MCP (raw tool call)
-curl -X POST http://localhost:8002/ \
+curl -X POST http://localhost:8002/mcp \
   -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
   -d '{
     "jsonrpc": "2.0",
     "id": 1,
