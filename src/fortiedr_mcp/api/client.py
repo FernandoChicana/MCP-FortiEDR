@@ -69,7 +69,14 @@ class FortiEDRClient:
                 auth=self._auth,
                 connector=connector,
                 timeout=aiohttp.ClientTimeout(total=60, connect=10),
-                headers={"Accept": "application/json"},
+                # Accept */* — algunos endpoints de FortiEDR devuelven
+                # content-type distinto a application/json (ej.
+                # /events/export-raw-data-items-json retorna octet-stream).
+                # Con Accept: application/json estricto, FortiEDR responde HTTP 406.
+                # Como la lógica de request() ya detecta el content-type real de
+                # la respuesta y parsea según corresponda (líneas 142-145), aceptar
+                # cualquier tipo es seguro.
+                headers={"Accept": "*/*"},
             )
         return self._session
 
